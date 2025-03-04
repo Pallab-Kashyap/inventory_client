@@ -4,7 +4,7 @@ import Login from './pages/authPages/Login'
 import Dashboard from './pages/Dashboard'
 import ItemLibrary from './components/dashboard-components/item-library/ItemLibraryContainer'
 import ImageLibrary from './components/dashboard-components/image-library/ImageLibrary'
-import EditItem from './components/dashboard-components/item-library/EditItem'
+import EditItem from './components/dashboard-components/item-library/edit-items/EditItemContainer'
 
 function App() {
 
