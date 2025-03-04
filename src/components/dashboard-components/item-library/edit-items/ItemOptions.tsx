@@ -1,6 +1,13 @@
 import { useEffect, useMemo, useState } from "react";
 import { RxCross2 } from "react-icons/rx";
 import { RiDeleteBin6Line } from "react-icons/ri";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "@store/store";
+import {
+  addEditOption,
+  EditOption,
+  updateEditOption,
+} from "../../../../store/features/editing.product.features/productOptionsEditSlice";
 
 interface Option {
   optionId: string;
@@ -10,14 +17,18 @@ interface Option {
 }
 
 const ItemOptions = () => {
+  const optionContext = useSelector(
+    (state: RootState) => state.editOptions.selectedOptions
+  );
+  const dispatch = useDispatch();
+  console.log(optionContext);
+
   const [isSelectingOption, setIsSelectingOption] = useState(false);
 
-  const [selectedOption, setSelectedOption] = useState<Option | null>(null);
+  const [selectedOption, setSelectedOption] = useState<EditOption | null>(null);
   const [selectedOptionValues, setSelectedOptionValues] = useState<string[]>(
-    selectedOption ? selectedOption.optionValues : []
+    []
   );
-
-  const [allSelectedOptions, setAllSelectedOptions] = useState<Option[]>([]);
 
   const options: Option[] = useMemo(() => {
     return [
@@ -92,27 +103,59 @@ const ItemOptions = () => {
     setIsSelectingOption(false);
   };
 
+  // const handleDone = () => {
+  //   if (selectedOption && selectedOptionValues.length > 0) {
+  //     const newOptions = selectedOption
+  //     newOptions.optionValues = selectedOptionValues;
+
+  //     if (optionContext.length === 0) {
+  //       dispatch(updateEditOption(newOptions))
+  //     } else {
+  //       const a = optionContext.find(
+  //         (option) => option.optionId === newOptions.optionId
+  //       );
+
+  //       if (a) {
+  //          dispatch(updateEditOption(a))
+  //       } else {
+  //         dispatch(addEditOption(newOptions))
+  //       }
+  //     }
+  //   }
+
+  //   setSelectedOption(null);
+  //   setSelectedOptionValues([]);
+  //   setIsSelectingOption(false);
+  // };
+
   const handleDone = () => {
     if (selectedOption && selectedOptionValues.length > 0) {
-      const newOptions = selectedOption;
-      newOptions.optionValues = selectedOptionValues;
-
-      if (allSelectedOptions.length === 0) {
-        setAllSelectedOptions([newOptions]);
+      if (optionContext.length === 0) {
+        dispatch(
+          addEditOption({
+            ...selectedOption,
+            optionValues: selectedOptionValues,
+          })
+        );
       } else {
-        const a = allSelectedOptions.find(
-          (option) => option.optionId === newOptions.optionId
+        const isThere = optionContext.find(
+          (curr) => curr.optionId === selectedOption.optionId
         );
 
-        if (a) {
-          setAllSelectedOptions((prev) =>
-            prev.map((option) =>
-              option.optionId === newOptions.optionId ? newOptions : option
-            )
+        if (isThere) {
+          dispatch(
+            updateEditOption({
+              ...selectedOption,
+              optionValues: selectedOptionValues,
+            })
           );
         } else {
-          allSelectedOptions.push(newOptions);
-          setAllSelectedOptions(allSelectedOptions);
+          dispatch(
+            addEditOption({
+              ...selectedOption,
+              optionValues: selectedOptionValues,
+            })
+          );
         }
       }
     }
@@ -122,6 +165,10 @@ const ItemOptions = () => {
     setIsSelectingOption(false);
   };
 
+  const handleEditSelectedOption = (option: EditOption) => {
+    setSelectedOption(option);
+    setIsSelectingOption(true)
+  };
 
   return isSelectingOption ? (
     <div
@@ -182,8 +229,13 @@ const ItemOptions = () => {
                   <div className="border border-white/35 min-h-12 w-full px-3 flex items-center">
                     <p className="flex-1">{optionValue}</p>
                     <button
-                        onClick={() => setSelectedOptionValues(prev => prev.filter(ele => ele !== optionValue))}
-                    className=" cursor-pointer">
+                      onClick={() =>
+                        setSelectedOptionValues((prev) =>
+                          prev.filter((ele) => ele !== optionValue)
+                        )
+                      }
+                      className=" cursor-pointer"
+                    >
                       <RxCross2 />
                     </button>
                   </div>
@@ -209,7 +261,9 @@ const ItemOptions = () => {
       <header className="flex items-center justify-between">
         <h2 className="text-2xl">Options</h2>
         <button
-          onClick={() => setIsSelectingOption(true)}
+          onClick={() => {
+            setIsSelectingOption(true);
+          }}
           className="py-1 w-16 text-center rounded-[6px] bg-blue-500 font-medium cursor-pointer"
         >
           Add
@@ -217,12 +271,19 @@ const ItemOptions = () => {
       </header>
 
       <div>
-        {allSelectedOptions &&
-          allSelectedOptions.length > 0 &&
-          allSelectedOptions.map((option) => (
+        {optionContext &&
+          optionContext.length > 0 &&
+          optionContext.map((option) => (
             <div className="flex justify-between mt-4">
-              <p className="">{option.displayName}</p>
-              <p className="text-sm">{option.optionValues.join(", ")}</p>
+              <p onClick={() => handleEditSelectedOption(option)} className=" cursor-pointer">
+                {option.displayName}
+              </p>
+              <p
+                onClick={() => handleEditSelectedOption(option)}
+                className="text-sm cursor-pointer"
+              >
+                {option.optionValues.join(", ")}
+              </p>
               <div className="flex gap-3">
                 <button className="text-blue-500 cursor-pointer">Edit</button>
                 <button className="text-amber-600 cursor-pointer">

@@ -4,8 +4,160 @@ import { RxCross2 } from "react-icons/rx";
 import { IoIosCheckmark } from "react-icons/io";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@store/store";
-import { Category } from "@store/features/editing.product.features/productCategoriesEditSlice";
+import {  EditCategory } from "@store/features/editing.product.features/productCategoriesEditSlice";
 import { setEditCategories } from '../../../../store/features/editing.product.features/productCategoriesEditSlice'
+
+interface Category {
+  id: string;
+  categoryName: string;
+  displayName: string;
+  children?: Category[];
+}
+
+const categoryList: Category[] = [
+  {
+    "id": "1",
+    "categoryName": "men",
+    "displayName": "Men",
+    "children": [
+      {
+        "id": "1-1",
+        "categoryName": "men_clothing",
+        "displayName": "Men's Clothing",
+        "children": [
+          {
+            "id": "1-1-1",
+            "categoryName": "men_clothing_shirts",
+            "displayName": "Men's Shirts",
+            "children": []
+          },
+          {
+            "id": "1-1-2",
+            "categoryName": "men_clothing_tshirts",
+            "displayName": "Men's T-Shirts",
+            "children": []
+          },
+          {
+            "id": "1-1-3",
+            "categoryName": "men_clothing_pants",
+            "displayName": "Men's Pants",
+            "children": []
+          }
+        ]
+      },
+      {
+        "id": "1-2",
+        "categoryName": "men_footwear",
+        "displayName": "Men's Footwear",
+        "children": [
+          {
+            "id": "1-2-1",
+            "categoryName": "men_footwear_sneakers",
+            "displayName": "Men's Sneakers",
+            "children": []
+          },
+          {
+            "id": "1-2-2",
+            "categoryName": "men_footwear_formal",
+            "displayName": "Men's Formal Shoes",
+            "children": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "2",
+    "categoryName": "women",
+    "displayName": "Women",
+    "children": [
+      {
+        "id": "2-1",
+        "categoryName": "women_clothing",
+        "displayName": "Women's Clothing",
+        "children": [
+          {
+            "id": "2-1-1",
+            "categoryName": "women_clothing_dresses",
+            "displayName": "Women's Dresses",
+            "children": []
+          },
+          {
+            "id": "2-1-2",
+            "categoryName": "women_clothing_tops",
+            "displayName": "Women's Tops",
+            "children": []
+          }
+        ]
+      },
+      {
+        "id": "2-2",
+        "categoryName": "women_footwear",
+        "displayName": "Women's Footwear",
+        "children": [
+          {
+            "id": "2-2-1",
+            "categoryName": "women_footwear_heels",
+            "displayName": "Women's Heels",
+            "children": []
+          },
+          {
+            "id": "2-2-2",
+            "categoryName": "women_footwear_flats",
+            "displayName": "Women's Flats",
+            "children": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "3",
+    "categoryName": "kids",
+    "displayName": "Kids",
+    "children": [
+      {
+        "id": "3-1",
+        "categoryName": "kids_clothing",
+        "displayName": "Kids' Clothing",
+        "children": [
+          {
+            "id": "3-1-1",
+            "categoryName": "kids_clothing_shirts",
+            "displayName": "Kids' Shirts",
+            "children": []
+          },
+          {
+            "id": "3-1-2",
+            "categoryName": "kids_clothing_tshirts",
+            "displayName": "Kids' T-Shirts",
+            "children": []
+          }
+        ]
+      },
+      {
+        "id": "3-2",
+        "categoryName": "kids_footwear",
+        "displayName": "Kids' Footwear",
+        "children": [
+          {
+            "id": "3-2-1",
+            "categoryName": "kids_footwear_sneakers",
+            "displayName": "Kids' Sneakers",
+            "children": []
+          },
+          {
+            "id": "3-2-2",
+            "categoryName": "kids_footwear_sandals",
+            "displayName": "Kids' Sandals",
+            "children": []
+          }
+        ]
+      }
+    ]
+  }
+]
+
 
 //COMPONENT
 const CategoryItem = ({
@@ -14,27 +166,30 @@ const CategoryItem = ({
   selectedCategories,
 }: {
   category: Category;
-  setSelectedCategories: React.Dispatch<React.SetStateAction<Category[]>>;
-  selectedCategories: Category[];
+  setSelectedCategories: React.Dispatch<React.SetStateAction<EditCategory[]>>;
+  selectedCategories: EditCategory[];
 }) => {
   const [isSubcategoriesShown, setIsSubcategoriesShown] = useState(false);
   const [isSelected, setIsSelected] = useState(false);
 
   useEffect(() => {
-    if (category.isSelected) {
-      setIsSelected(true);
+
+    for(const c of selectedCategories){
+        if(c.id === category.id){
+          setIsSelected(true)
+          break;
+        }
     }
-  }, [category.isSelected]);
+
+  }, [category.id, selectedCategories]);
 
   const handleCategorySelection = () => {
 
-    if(category.isSelected){
-      const newCategory = {...category, isSelected: false}
-      setSelectedCategories(prev => prev.map(curr => curr.id !== category.id ? curr : newCategory))
+    if(!isSelected){
+      setSelectedCategories(prev => [...prev, category])
     }
     else{
-      const newCategory = {...category, isSelected: true}
-      setSelectedCategories(prev => prev.map(curr => curr.id !== category.id ? curr : newCategory))
+      setSelectedCategories(prev => prev.filter(curr => curr.id !== category.id ))
     }
 
     setIsSelected((prev) => !prev);
@@ -84,16 +239,12 @@ const CategoryItem = ({
 const ItemCategories = () => {
   const categories = useSelector(
     (state: RootState) => state.editCategory.categories
-  ) as Category[];
+  ) as EditCategory[];
 
-  // const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [selectedCategories, setSelectedCategories] = useState<EditCategory[]>([]);
   const dispatch = useDispatch()
 
   const [isEditing, setIsEditing] = useState(false);
-
-  const [newSelectedCategories, setNewSelectedCategories] = useState<
-    Category[]
-  >([]);
 
   const handleDone = () => {
     // setSelectedCategories(() => {
@@ -102,15 +253,15 @@ const ItemCategories = () => {
     //   return Array.from(new Set(arr));
     // });
 
-    dispatch(setEditCategories(newSelectedCategories))
+    dispatch(setEditCategories(selectedCategories))
 
-    setNewSelectedCategories([]);
+    setSelectedCategories([]);
 
     setIsEditing(false);
   };
 
   const handleCancel = () => {
-    setNewSelectedCategories([]);
+    setSelectedCategories([]);
     setIsEditing(false);
   };
 
@@ -143,13 +294,13 @@ const ItemCategories = () => {
         <p>Select all the relavent Categories</p>
 
         <div className=" max-h-[60vh] overflow-scroll pt-2">
-          {categories &&
-            categories.map((category) => (
+          {categoryList &&
+            categoryList.map((category) => (
               <>
                 <CategoryItem
                   category={category}
-                  setSelectedCategories={setNewSelectedCategories}
-                  selectedCategories={newSelectedCategories}
+                  setSelectedCategories={setSelectedCategories}
+                  selectedCategories={selectedCategories}
                 />
                 <span className="h-2 block"></span>
               </>
@@ -170,14 +321,14 @@ const ItemCategories = () => {
           <h3>Categories</h3>
           <div className="flex space-x-2 text-sm text-white/75 max-w-[500px] flex-wrap">
             {categories.map((cat) =>
-              cat.isSelected ? <p>{cat.displayName},</p> : ""
+               <p>{cat.displayName},</p> 
             )}
           </div>
         </div>
         <button
           className="text-blue-500"
           onClick={() => {
-            setNewSelectedCategories(categories);
+            setSelectedCategories(categories);
             setIsEditing(true);
           }}
         >
