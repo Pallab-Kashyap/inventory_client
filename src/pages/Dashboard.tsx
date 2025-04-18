@@ -4,8 +4,8 @@ const Dashboard = () => {
   const list = [
     { to: '/item-library', name: "Item library" },
     { to: '/image-library', name: "Image library" },
-    { to: '/c', name: "Categories" },
-    { to: '/d', name: "Options" }
+    { to: '/category-library', name: "Categories" },
+    { to: '/option-library', name: "Options" }
 ];
 
   return (
@@ -19,7 +19,7 @@ const Dashboard = () => {
           <ul className="h-full w-fit pt-5 ">
             {list.map((obj) => (
               <li className="h-fit w-fit">
-                <NavLink to={obj.to} className={({ isActive }) =>`${isActive ? 'bg-[#4B4B4B]' : ''} block w-52 py-3 px-5 hover:text-yellow-500/90`}>
+                <NavLink to={obj.to} className={({ isActive }) =>`${isActive ? 'bg-[#4B4B4B]' : ''} block w-52 py-3 px-5 hover:text-blue-500/90`}>
                   {obj.name}
                 </NavLink>
               </li>

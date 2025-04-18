@@ -1,10 +1,15 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
+export interface OptionValues {
+  optionValueId: string;
+  optionValue: string;
+}
+
 export interface EditOption {
   optionId: string,
   optionName: string,
   displayName: string,
-  optionValues: string[]
+  optionValues: OptionValues[]
 }
 
 interface OptionsState {

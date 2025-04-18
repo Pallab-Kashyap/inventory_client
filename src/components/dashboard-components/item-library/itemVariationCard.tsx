@@ -1,9 +1,10 @@
 import { BsThreeDots } from "react-icons/bs";
 import { useState } from "react";
-import { Variation } from "./ItemCard";
 import ActionCard from "./ActionCard";
+import { ProductVariation } from "../../../types/productTypes";
+import { FaRegImage } from "react-icons/fa";
 
-const ItemVariationCard = ({ variation }: { variation: Variation }) => {
+const ItemVariationCard = ({ variation }: { variation: ProductVariation }) => {
   //   const [isVariationDisplayed, setIsVariationDisplayed] = useState(false);
   const [isShowActions, setIsShowActions] = useState(false)
 
@@ -13,12 +14,24 @@ const ItemVariationCard = ({ variation }: { variation: Variation }) => {
       <div className="col-span-14 grid grid-cols-14 items-center">
         <div></div>
         <div id="image" className="h-full w-full p-1 object-contain">
-          <img src={variation.image[0]} className=" h-12 w-10"></img>
+        {variation.images && variation.images.length > 0 ? (
+                  <img
+                    src={variation?.images[0].url}
+                    alt={variation?.images[0].imageName || "product image"}
+                    className="h-8 w-8 rounded-md object-contain"
+                  />
+                ) : (
+                  <div
+                    className=" border border-gray-600 flex justify-center items-center  h-8 w-8 rounded-md"
+                  >
+                    <FaRegImage />
+                  </div>
+                )}
         </div>
-        <div className=" border-white col-span-6">{variation.name}</div>
-        <div className=" border-white col-span-3 text-center">fjwiefpwj</div>
+        <div className=" border-white col-span-6">{variation.variationName}</div>
+        <div className=" border-white col-span-3 text-center"></div>
         <div className=" border-white col-span-1 text-center">
-          {variation.stock}
+          {variation.stockQuantity}
         </div>
         <div className=" border-white col-span-2 text-right">
           {variation.price}

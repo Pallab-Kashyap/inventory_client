@@ -3,8 +3,8 @@ import { FaAngleDown, FaAngleUp, FaRegFolder } from "react-icons/fa6";
 import { RxCross2 } from "react-icons/rx";
 import { IoIosCheckmark } from "react-icons/io";
 import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "@store/store";
-import {  EditCategory } from "@store/features/editing.product.features/productCategoriesEditSlice";
+import { RootState } from "../../../../store/store";
+import {  EditCategory } from "../../../../store/features/editing.product.features/productCategoriesEditSlice";
 import { setEditCategories } from '../../../../store/features/editing.product.features/productCategoriesEditSlice'
 
 interface Category {

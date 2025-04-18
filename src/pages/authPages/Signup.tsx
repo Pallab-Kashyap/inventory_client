@@ -1,51 +1,55 @@
-import { FormEvent, ChangeEvent, useState } from "react";
+import { FormEvent, ChangeEvent, useState } from 'react';
 import { CiMail, CiLock } from "react-icons/ci";
 import { IoEyeOutline, IoEyeOffOutline } from "react-icons/io5";
+import { FaRegUser } from "react-icons/fa";
 import { FiLogIn } from "react-icons/fi";
-import { Link, useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux";
-import { updateLoaderState } from "../../store/features/loaderSlice";
-import { loginUser } from "../../API/auth";
-import { AxiosError } from "axios";
+import { Link, useNavigate } from 'react-router';
+import { useDispatch } from 'react-redux';
+import { updateLoaderState } from '../../store/features/loaderSlice';
+import { registerUser } from '../../API/auth';
+import { AxiosError } from 'axios';
 
-export default function Login() {
+export default function Signup() {
   const [showPassword, setShowPassword] = useState(false);
-  const [formData, setFormData] = useState({ email: "", password: "" });
-  const [errors, setErrors] = useState({ email: "", password: "", APIError: "" });
+  const [formData, setFormData] = useState({ username: '', email: '', password: '' });
+  const [errors, setErrors] = useState({ username: '', email: '', password: '', APIError: '' });
 
   const dispatch = useDispatch()
   const navigate = useNavigate()
 
-
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-
-    // Clear error when typing
+    setFormData(prev => ({ ...prev, [name]: value }));
     if (errors[name as keyof typeof errors]) {
-      setErrors((prev) => ({ ...prev, [name]: "" }));
+      setErrors(prev => ({ ...prev, [name]: '' }));
     }
   };
 
   const validateForm = (): boolean => {
     let isValid = true;
-    const newErrors = { email: "", password: "", APIError: "" };
+    const newErrors = { username: '', email: '', password: '', APIError: ''};
 
     // Email validation
     if (!formData.email) {
-      newErrors.email = "Email is required";
+      newErrors.email = 'Email is required';
       isValid = false;
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = "Email is invalid";
+      newErrors.email = 'Email is invalid';
       isValid = false;
     }
 
     // Password validation
     if (!formData.password) {
-      newErrors.password = "Password is required";
+      newErrors.password = 'Password is required';
       isValid = false;
     } else if (formData.password.length < 6) {
-      newErrors.password = "Password must be at least 6 characters";
+      newErrors.password = 'Password must be at least 6 characters';
+      isValid = false;
+    }
+
+    // Username validation
+    if (!formData.username) {
+      newErrors.username = 'Username is required';
       isValid = false;
     }
 
@@ -53,15 +57,13 @@ export default function Login() {
     return isValid;
   };
 
-
-
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (validateForm()) {
       ;(async() => {
         try {
           dispatch(updateLoaderState(true))
-          await loginUser(formData)
+          await registerUser(formData)
           navigate('/')
         } catch (error) {
           const err = error as AxiosError<{message: string}>
@@ -71,33 +73,55 @@ export default function Login() {
         }
       })()
     }
-    setFormData({ email: "", password: "" });
+    setFormData({ username: "", email: "", password: "" });
   };
 
   const handleGoogleAuth = () => {
-    console.log("Authenticating with Google...");
-    alert(
-      "Google Authentication initiated! This would redirect to Google in a real app."
-    );
+    console.log('Authenticating with Google...');
+    alert('Google Authentication initiated! This would redirect to Google in a real app.');
   };
 
   return (
-    <div className="min-h-screen  flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+    <div className="min-h-screen flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <h2 className="mt-6 text-center text-3xl font-extrabold text-white">
-          Sign in to your account
+          Create your account
         </h2>
       </div>
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
         <div className="border-2 border-white/50 py-8 px-4 shadow sm:rounded-lg sm:px-10">
           <form className="space-y-6" onSubmit={handleSubmit}>
-            {/* Email field */}
+            {/* Username field */}  
             <div>
-              <label
-                htmlFor="email"
-                className="block text-sm font-medium text-gray-300"
-              >
+              <label htmlFor="username" className="block text-sm font-medium text-gray-300">
+                Username
+              </label>
+              <div className="mt-1 relative rounded-md shadow-sm">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-500">
+                  <FaRegUser className="h-5 w-5" aria-hidden="true" />
+                </div>
+                <input
+                  id="username"
+                  name="username"
+                  type="text"
+                  placeholder='Username'
+                  autoComplete="username"
+                  value={formData.username}
+                  onChange={handleChange}
+                  className={`pl-10 block w-full sm:text-sm border-gray-400 rounded-md focus:ring-blue-500 focus:border-blue-500  text-white px-3 py-2 border ${
+                    errors.username ? 'border-red-500' : ''
+                  }`}
+                />
+              </div>
+              {errors.username && (
+                <p className="mt-2 text-sm text-red-400">{errors.username}</p>
+              )}
+            </div>
+
+            {/* Email field */}  
+            <div>
+              <label htmlFor="email" className="block text-sm font-medium text-gray-300">
                 Email address
               </label>
               <div className="mt-1 relative rounded-md shadow-sm">
@@ -107,15 +131,14 @@ export default function Login() {
                 <input
                   id="email"
                   name="email"
-                  // type="email"
-                  type="text"
+                  type="email"
+                  placeholder='Email'
                   autoComplete="email"
                   value={formData.email}
                   onChange={handleChange}
-                  className={`pl-10 block w-full sm:text-sm border-gray-500 rounded-md focus:ring-blue-500 focus:border-blue-500 text-white placeholder-gray-400 px-3 py-2 border ${
-                    errors.email ? "border-red-500" : ""
+                  className={`pl-10 block w-full sm:text-sm border-gray-400 rounded-md focus:ring-blue-500 focus:border-blue-500  text-white px-3 py-2 border ${
+                    errors.email ? 'border-red-500' : ''
                   }`}
-                  placeholder="Email"
                 />
               </div>
               {errors.email && (
@@ -123,12 +146,9 @@ export default function Login() {
               )}
             </div>
 
-            {/* Password field */}
+            {/* Password field */}  
             <div>
-              <label
-                htmlFor="password"
-                className="block text-sm font-medium text-gray-300"
-              >
+              <label htmlFor="password" className="block text-sm font-medium text-gray-300">
                 Password
               </label>
               <div className="mt-1 relative rounded-md shadow-sm">
@@ -138,21 +158,17 @@ export default function Login() {
                 <input
                   id="password"
                   name="password"
-                  type={showPassword ? "text" : "password"}
-                  autoComplete="current-password"
+                  type={showPassword ? 'text' : 'password'} 
+                  placeholder='Password'
+                  autoComplete="new-password"
                   value={formData.password}
                   onChange={handleChange}
-                  className={`pl-10 pr-10 block w-full sm:text-sm border-gray-500 rounded-md focus:ring-blue-500 focus:border-blue-500 text-white placeholder-gray-400 px-3 py-2 border ${
-                    errors.password ? "border-red-500" : ""
+                  className={`pl-10 pr-10 block w-full sm:text-sm border-gray-500 rounded-md focus:ring-blue-500 focus:border-blue-500 text-white px-3 py-2 border ${
+                    errors.password ? 'border-red-500' : ''
                   }`}
-                  placeholder="Password"
                 />
                 <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="text-gray-500 hover:text-gray-400 focus:outline-none"
-                  >
+                  <button type="button" onClick={() => setShowPassword(!showPassword)} className="text-gray-500 hover:text-gray-400 focus:outline-none">
                     {showPassword ? (
                       <IoEyeOffOutline className="h-5 w-5" aria-hidden="true" />
                     ) : (
@@ -166,14 +182,14 @@ export default function Login() {
               )}
             </div>
 
-            {/* Submit button */}
+            {/* Submit button */}  
             <div>
               <button
                 type="submit"
                 className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-500 hover:bg-blue-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
               >
                 <FiLogIn className="mr-2 h-5 w-5" aria-hidden="true" />
-                Sign in
+                Sign up
               </button>
               {errors.APIError && (
                 <p className="mt-2 text-sm text-center text-red-400">{errors.APIError}</p>
@@ -187,9 +203,7 @@ export default function Login() {
                 <div className="w-full border-t border-gray-300"></div>
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-black text-gray-200">
-                  Or continue with
-                </span>
+                <span className="px-2 bg-black text-gray-200">Or continue with</span>
               </div>
             </div>
 
@@ -222,11 +236,8 @@ export default function Login() {
           </div>
 
           <div className="mt-6 text-center">
-            <Link
-              to={"/signup"}
-              className="text-sm text-blue-400 hover:text-blue-300"
-            >
-              Don't have an account? Sign up
+            <Link to={'/login'} className="text-sm text-blue-400 hover:text-blue-300">
+              Already have an account? Sign in
             </Link>
           </div>
         </div>
